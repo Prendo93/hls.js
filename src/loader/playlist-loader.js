@@ -126,8 +126,16 @@ class PlaylistLoader extends EventHandler {
         if(!media.name) {
             media.name = media.lang;
         }
-        media.id = id++;
-        medias.push(media);
+        if (media.url === '' && medias[0].type === 'main'){
+          medias[0].name = media.name
+          medias[0].default = media.default
+          medias[0].autoselect = media.autoselect
+          medias[0].forced = media.forced
+          medias[0].lang = media.lang
+        } else {
+          media.id = id++;
+          medias.push(media);
+        }
       }
     }
     return;

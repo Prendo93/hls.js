@@ -14,6 +14,7 @@ class AudioTrackController extends EventHandler {
                Event.AUDIO_TRACK_LOADED);
     this.tracks = [];
     this.trackId = 0;
+    this.ontick = this.ontick.bind(this);
   }
 
   destroy() {
@@ -48,17 +49,49 @@ class AudioTrackController extends EventHandler {
   onAudioTrackLoaded(data) {
     if (data.id < this.tracks.length) {
       logger.log(`audioTrack ${data.id} loaded`);
-      this.tracks[data.id].details = data.details;
+      
       // check if current playlist is a live playlist
-      if (data.details.live && !this.timer) {
+      let newDetails = data.details;
+      console.log(newDetails)
+      if (newDetails.live) {
         // if live playlist we will have to reload it periodically
         // set reload period to playlist target duration
-        this.timer = setInterval(this.ontick, 1000 * data.details.targetduration);
+        let reloadInterval = 1000*( newDetails.averagetargetduration ? newDetails.averagetargetduration : newDetails.targetduration),
+          curDetails = this.tracks[data.id].details;
+        if (curDetails && newDetails.endSN === curDetails.endSN) {
+          // follow HLS Spec, If the client reloads a Playlist file and finds that it has not
+          // changed then it MUST wait for a period of one-half the target
+          // duration before retrying.
+          reloadInterval /=2;
+          logger.log(`same live audio playlist, reload twice as fast`);
+        }
+        // decrement reloadInterval with level loading delay
+        reloadInterval -= performance.now() - data.stats.trequest;
+        // in any case, don't reload more than every second
+        reloadInterval = Math.max(1000,Math.round(reloadInterval));
+        logger.log(`live audio playlist, reload in ${reloadInterval} ms`);
+        if (this.timer){
+          logger.log(`clearing audio Timeout`);
+          clearTimeout(this.timer);
+          this.timer = null;  
+        }
+        this.timer = setTimeout(this.ontick,reloadInterval);
       }
       if (!data.details.live && this.timer) {
         // playlist is not live and timer is armed : stopping it
-        clearInterval(this.timer);
+        clearTimeout(this.timer);
         this.timer = null;
+      }
+      this.tracks[data.id].details = data.details;
+    }
+  }
+
+  ontick() {
+    if (this.trackId !== undefined) {
+      let audioTrack = this.tracks[this.trackId], type = audioTrack.type, details = audioTrack.details;
+      if (type !== 'main' && (details === undefined || details.live === true)){
+        logger.log(`triggering live audio reload`);
+        this.hls.trigger(Event.AUDIO_TRACK_LOADING, {url: audioTrack.url, id: this.trackId});
       }
     }
   }
@@ -85,7 +118,7 @@ class AudioTrackController extends EventHandler {
     if (newId >= 0 && newId < this.tracks.length) {
       // stopping live reloading timer if any
       if (this.timer) {
-       clearInterval(this.timer);
+       clearTimeout(this.timer);
        this.timer = null;
       }
       this.trackId = newId;
