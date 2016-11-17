@@ -166,7 +166,9 @@ class AudioStreamController extends EventHandler {
 
           // if bufferEnd before start of playlist, load first fragment
           if (bufferEnd < start) {
+
             frag = fragments[0];
+            logger.log(`buffer end is before start of playlist, loading first segment:${frag.sn}`);
           } else {
             let foundFrag;
             let maxFragLookUpTolerance = config.maxFragLookUpTolerance;
@@ -196,9 +198,11 @@ class AudioStreamController extends EventHandler {
                 }
                 return 0;
               });
+            logger.log(`found segment by binary search, loading segment:${foundFrag.sn}`);
             } else {
               // reach end of playlist
               foundFrag = fragments[fragLen-1];
+              logger.log(`reached end of playlist, loadling last segment:${foundFrag.sn}`);
             }
             if (foundFrag) {
               frag = foundFrag;

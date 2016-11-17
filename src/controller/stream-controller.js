@@ -1060,7 +1060,7 @@ class StreamController extends EventHandler {
         this.mediaBuffer = this.media;
         let fragCurrent = this.fragCurrent;
         // we need to refill audio buffer from main: cancel any frag loading to speed up audio switch
-        if (fragCurrent.loader) {
+        if (fragCurrent && fragCurrent.loader) {
           logger.log('switching to main audio track, cancel main fragment load');
           fragCurrent.loader.abort();
         }

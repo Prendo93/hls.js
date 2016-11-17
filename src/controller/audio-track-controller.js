@@ -52,7 +52,6 @@ class AudioTrackController extends EventHandler {
       
       // check if current playlist is a live playlist
       let newDetails = data.details;
-      console.log(newDetails)
       if (newDetails.live) {
         // if live playlist we will have to reload it periodically
         // set reload period to playlist target duration
