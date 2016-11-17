@@ -1,7 +1,9 @@
 [![Build Status](https://travis-ci.org/dailymotion/hls.js.svg?branch=master)](https://travis-ci.org/dailymotion/hls.js)
-[![Coverage Status](https://coveralls.io/repos/github/dailymotion/hls.js/badge.svg?branch=master)](https://coveralls.io/github/dailymotion/hls.js?branch=master)
 [![npm][npm-image]][npm-url]
-# hls.js
+
+Join the discussion: [![Slack Status](https://hlsjs.herokuapp.com/badge.svg)](https://hlsjs.herokuapp.com/)
+
+# ![hls.js](https://cloud.githubusercontent.com/assets/616833/19739063/e10be95a-9bb9-11e6-8100-2896f8500138.png)
 hls.js is a JavaScript library which implements an [HTTP Live Streaming] client.
 It relies on [HTML5 video][] and [MediaSource Extensions][] for playback.
 
@@ -24,6 +26,19 @@ hls.js is written in [ECMAScript6], and transpiled in ECMAScript5 using [Babel].
 Public demo : [http://dailymotion.github.io/hls.js/demo](http://dailymotion.github.io/hls.js/demo)
 
 Private demo accessible from Dailymotion network: [http://gdupontavice.dev.dailymotion.com/hls.js/demo/index.html](http://gdupontavice.dev.dailymotion.com/hls.js/demo/index.html)
+
+
+## they use hls.js in production !
+
+
+|[<img src="http://i.cdn.turner.com/adultswim/big/img/global/adultswim.jpg" width="100">](http://www.adultswim.com/videos/streams)|[<img src="http://www.brandsoftheworld.com/sites/default/files/styles/logo-thumbnail/public/042013/new_akamai_logo_cmyk_0.png?itok=cm0ZSgjN" width="100">](https://www.akamai.com)|[<img src="http://press.dailymotion.com/fr/wp-content/uploads/sites/4/2010/06/LOGO-PRESS-BLOG.png" width="100">](http://www.dailymotion.com)|[<img src="https://flowplayer.org/media/img/logo-blue.png" width="100">](http://www.flowplayer.org)|
+|---|---|---|---|
+|[<img src="https://cloud.githubusercontent.com/assets/244265/12556435/dfaceb48-c353-11e5-971b-2c4429725469.png" width="100">](http://www.globo.com)|[<img src="https://cloud.githubusercontent.com/assets/13573755/20111430/80a6bebc-a5e8-11e6-8dc1-619b1e936f6d.png" width="100">](https://www.gl-systemhaus.de/)|[<img src="https://cloud.githubusercontent.com/assets/244265/12556385/999aa884-c353-11e5-9102-79df54384498.png" width="100">](https://www.nytimes.com/)|[<img src="https://cloud.githubusercontent.com/assets/1798553/20356424/ba158574-ac24-11e6-95e1-1ae591b11a0a.png" width="100">](https://www.peer5.com/)|
+|[<img src="https://www.radiantmediaplayer.com/images/radiantmediaplayer-new-logo-640.jpg" width="100">](https://www.radiantmediaplayer.com/)|[<img src="https://camo.githubusercontent.com/eacade2264a6325191b6cb9bf7a8c0d05a5b628d/68747470733a2f2f7777772e7274732e63682f68756d6d696e67626972642f7265732f696d616765732f7274732f6c6f676f2d7274732d726f7567652e737667" width="100">](http://www.rts.ch/)|[<img src="https://cloud.githubusercontent.com/assets/12702747/19316434/0a3601de-9067-11e6-85e2-936b1cb099a0.png" width="100">](https://www.snapstream.com/)|[<img src="https://www.streamamg.com/wp-content/themes/barebones/_assets/images/streamamg-logo.png" width="100">](https://www.streamamg.com/)|[<img src="https://streamsharkio.sa.metacdn.com/wp-content/uploads/2015/10/streamshark-dark.svg" width="100">](https://streamshark.io/)|[<img src="https://camo.githubusercontent.com/9580f10e9bfa8aa7fba52c5cb447bee0757e33da/68747470733a2f2f7777772e7461626c6f74762e636f6d2f7374617469632f696d616765732f7461626c6f5f6c6f676f2e706e67" width="100">](http://my.tablotv.com/)|
+|[<img src="https://cloud.githubusercontent.com/assets/1798553/20356423/ba13fd6c-ac24-11e6-971c-be30c75592ef.png" width="100">](https://www.streamroot.io/)|[<img src="http://vignette1.wikia.nocookie.net/tedtalks/images/c/c0/TED_logo.png/revision/20150915192527" width="100">](https://www.ted.com/)|[<img src="https://www.seeklogo.net/wp-content/uploads/2014/12/twitter-logo-vector-download.jpg" width="100">](https://twitter.com/)|
+
+
+
 
 
 ## Player Integration
@@ -81,7 +96,10 @@ As of today, it is supported on:
  * Chrome for Desktop 34+
  * Firefox for Android 41+
  * Firefox for Desktop 42+
- * IE11+ for Windows 8.1
+ * IE11+ for Windows 8.1+
+ * Edge for Windows 10+
+ * Opera for Desktop
+ * Vivaldi for Desktop
  * Safari for Mac 8+ (beta)
 
 ## CORS
@@ -113,11 +131,12 @@ All HLS resources must be delivered with [CORS headers](https://developer.mozill
   - Timed Metadata for HTTP Live Streaming (in ID3 format, carried in MPEG-2 TS)
   - AES-128 decryption (AES-128 mode)
   - CEA-708 captions
+  - Alternate Audio Track Rendition (Master Playlist with alternative Audio) for VoD playlists  
 
 ## Not Supported (Yet)
 
   - MP3 / WebVTT container
-  - Alternate Audio Track Rendition (Master Playlist with alternative Audio)
+  - Alternate Audio Track Rendition for live playlists
 
 ### Supported M3U8 tags
 
@@ -128,6 +147,7 @@ All HLS resources must be delivered with [CORS headers](https://developer.mozill
   - `#EXT-X-MEDIA-SEQUENCE`
   - `#EXT-X-TARGETDURATION`
   - `#EXT-X-DISCONTINUITY`
+  - `#EXT-X-DISCONTINUITY-SEQUENCE`  
   - `#EXT-X-BYTERANGE`
   - `#EXT-X-KEY` (https://tools.ietf.org/html/draft-pantos-http-live-streaming-08#section-3.4.4)
   - `#EXT-X-PROGRAM-DATE-TIME` (https://tools.ietf.org/html/draft-pantos-http-live-streaming-18#section-4.3.2.6)

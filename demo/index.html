@@ -57,7 +57,12 @@ header {
 <body>
   <div class="header-container">
     <header class="wrapper clearfix">
-      <h1 class="title"><a target=_blank href="https://github.com/dailymotion/hls.js">hls.js</a> demo page</h1>
+      <h1>
+        <a target="_blank" href="https://github.com/dailymotion/hls.js">
+          <img src="https://cloud.githubusercontent.com/assets/616833/19739063/e10be95a-9bb9-11e6-8100-2896f8500138.png"/>
+        </a>
+      </h1>
+      <h2 class="title">demo page</h2>
     </header>
   </div>
 
@@ -229,7 +234,7 @@ $(document).ready(function() {
    $('#levelCapping').val(levelCapping);
    $('#defaultAudioCodec').val(defaultAudioCodec || "undefined");
 
-   $('h1').append(' <a target=_blank href=https://github.com/dailymotion/hls.js/releases/tag/v' + Hls.version + '>v' + Hls.version + '</a>');
+   $('h2').append(' <a target=_blank href=https://github.com/dailymotion/hls.js/releases/tag/v' + Hls.version + '>v' + Hls.version + '</a>');
 
 });
 
@@ -365,8 +370,8 @@ $(document).ready(function() {
             parsing : data.stats.tparsed - data.stats.tload,
             buffer : data.stats.tbuffered - data.stats.tparsed,
             duration : data.stats.tbuffered - data.stats.tfirst,
-            bw : Math.round(8*data.stats.length/(data.stats.tbuffered - data.stats.tfirst)),
-            size : data.stats.length
+            bw : Math.round(8*data.stats.total/(data.stats.tbuffered - data.stats.tfirst)),
+            size : data.stats.total
           };
           events.load.push(event);
           events.bitrate.push({time : performance.now() - events.t0, bitrate : event.bw , duration : data.frag.duration, level : event.id});
@@ -467,16 +472,27 @@ $(document).ready(function() {
         }
        });
 
+       hls.on(Hls.Events.FRAG_DECRYPTED,function(event,data) {
+         if (!stats.fragDecrypted) {
+           stats.fragDecrypted = 0;
+           this.totalDecryptTime = 0;
+           stats.fragAvgDecryptTime = 0;
+         }
+         stats.fragDecrypted++;
+         this.totalDecryptTime += data.stats.tdecrypt - data.stats.tstart;
+         stats.fragAvgDecryptTime = this.totalDecryptTime / stats.fragDecrypted;
+       });
+
        hls.on(Hls.Events.ERROR, function(event,data) {
         switch(data.details) {
           case Hls.ErrorDetails.MANIFEST_LOAD_ERROR:
             try {
-              $("#HlsStatus").html("cannot Load <a href=\"" + data.url + "\">" + url + "</a><br>HTTP response code:" + data.response.status + "<br>" + data.response.statusText);
-                if(data.response.status === 0) {
+              $("#HlsStatus").html("cannot Load <a href=\"" + data.context.url + "\">" + url + "</a><br>HTTP response code:" + data.response.code + " <br>" + data.response.text);
+                if(data.response.code === 0) {
                   $("#HlsStatus").append("this might be a CORS issue, consider installing <a href=\"https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi\">Allow-Control-Allow-Origin</a> Chrome Extension");
                 }
             } catch(err) {
-              $("#HlsStatus").html("cannot Load <a href=\"" + data.url + "\">" + url + "</a><br>Reason:Load " + data.event.type);
+              $("#HlsStatus").html("cannot Load <a href=\"" + data.context.url + "\">" + url + "</a><br>Reason:Load " + data.response.text);
             }
             break;
           case Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT:

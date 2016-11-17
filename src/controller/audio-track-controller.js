@@ -24,7 +24,7 @@ class AudioTrackController extends EventHandler {
   onManifestLoading() {
     // reset audio tracks on manifest loading
     this.tracks = [];
-    this.trackId = 0;
+    this.trackId = -1;
   }
 
   onManifestLoaded(data) {
@@ -33,12 +33,14 @@ class AudioTrackController extends EventHandler {
     this.tracks = tracks;
     this.hls.trigger(Event.AUDIO_TRACKS_UPDATED, {audioTracks : tracks});
     // loop through available audio tracks and autoselect default if needed
+    let id = 0;
     tracks.forEach(track => {
       if(track.default) {
-        this.audioTrack = track.id;
+        this.audioTrack = id;
         defaultFound = true;
         return;
       }
+      id++;
     });
     if (defaultFound === false && tracks.length) {
       logger.log('no default audio track defined, use first audio track as default');
@@ -122,14 +124,14 @@ class AudioTrackController extends EventHandler {
       }
       this.trackId = newId;
       logger.log(`switching to audioTrack ${newId}`);
-      let audioTrack = this.tracks[newId], type = audioTrack.type;
-      this.hls.trigger(Event.AUDIO_TRACK_SWITCH, {id: newId, type : type});
+      let audioTrack = this.tracks[newId], type = audioTrack.type,url = audioTrack.url;
+      this.hls.trigger(Event.AUDIO_TRACK_SWITCH, {id: newId, type : type, url : url});
        // check if we need to load playlist for this audio Track
        let details = audioTrack.details;
-      if (type !== 'main' && (details === undefined || details.live === true)) {
+      if (url && (details === undefined || details.live === true)) {
         // track not retrieved yet, or live playlist we need to (re)load it
         logger.log(`(re)loading playlist for audioTrack ${newId}`);
-        this.hls.trigger(Event.AUDIO_TRACK_LOADING, {url: audioTrack.url, id: newId});
+        this.hls.trigger(Event.AUDIO_TRACK_LOADING, {url: url, id: newId});
       }
     }
   }
